@@ -9,8 +9,8 @@
 package net.faustinelli.cqrs.naive.db;
 
 import net.faustinelli.cqrs.naive.model.Conference;
+import net.faustinelli.cqrs.naive.model.Message;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.annotations.Entity;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.classic.Session;
