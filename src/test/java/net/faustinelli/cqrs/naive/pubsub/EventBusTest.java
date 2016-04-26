@@ -1,7 +1,7 @@
 /*
  * Project: naive-cqrs
  * Author: Marco Faustinelli - Muzietto (contacts@faustinelli.net)
- * Web: http://faustinelli.wordpress.com/, http://www.github.com/muzietto, http://faustinelli.net/
+ * Web: http://faustinelli.wordpress.com/, https://www.github.com/muzietto, http://faustinelli.net/
  * Version: 1.0
  * The GPL 3.0 License - Copyright (c) 2015-2016 - The naive-cqrs Project
  */
@@ -10,6 +10,11 @@ package net.faustinelli.cqrs.naive.pubsub;
 
 import com.google.gwt.thirdparty.guava.common.eventbus.EventBus;
 import com.google.gwt.thirdparty.guava.common.eventbus.Subscribe;
+import net.faustinelli.cqrs.naive.bus.command.Command;
+import net.faustinelli.cqrs.naive.bus.command.CommandBus;
+import net.faustinelli.cqrs.naive.bus.command.RegisterToConference;
+import net.faustinelli.cqrs.naive.bus.command.handler.CommandHandler;
+import net.faustinelli.cqrs.naive.bus.command.handler.OrderCommandHandler;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -18,6 +23,15 @@ import static org.junit.Assert.assertEquals;
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
  */
 public class EventBusTest {
+
+    @Test
+    public void testCommandBus() {
+        CommandBus commandBus = new CommandBus();
+        Command register = new RegisterToConference();
+        CommandHandler orderCH = new OrderCommandHandler();
+        commandBus.register(orderCH);
+        commandBus.post(register);
+    }
 
     @Test
     public void eventBusTest() throws Exception {
