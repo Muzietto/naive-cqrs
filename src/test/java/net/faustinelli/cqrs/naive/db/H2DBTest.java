@@ -14,7 +14,6 @@ import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.junit.Test;
 
-import static net.faustinelli.cqrs.naive.db.HibernateConfig.getFactory;
 import static net.faustinelli.cqrs.naive.db.HibernateConfig.getSession;
 import static org.junit.Assert.assertEquals;
 

@@ -13,8 +13,10 @@ package net.faustinelli.cqrs.naive.model;
  */
 public class Order {
 
-    private final Conference conference;
-    private final Integer seatsToBook;
+    private Conference conference;
+    private Integer seatsToBook;
+
+    private Order() {}
 
     public Order(Conference conf, Integer seatsToBook) {
         this.conference = conf;

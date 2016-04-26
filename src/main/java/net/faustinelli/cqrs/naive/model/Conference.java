@@ -27,10 +27,15 @@ public class Conference {
     @Column(name = "NUM_SEATS")
     private Integer numSeats;
 
-    public Conference() { }
+    public Conference() {}
+
+    public Conference(String title, Integer numSeats) {
+        this.title = title;
+        this.numSeats = numSeats;
+    }
 
     public Conference(String title) {
-        this.title = title;
+        this(title, 100);
     }
 
     public Long getId() {
