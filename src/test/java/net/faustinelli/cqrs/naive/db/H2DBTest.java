@@ -1,3 +1,11 @@
+/*
+ * Project: naive-cqrs
+ * Author: Marco Faustinelli - Muzietto (contacts@faustinelli.net)
+ * Web: http://faustinelli.wordpress.com/, https://www.github.com/muzietto, http://faustinelli.net/
+ * Version: 1.0
+ * The GPL 3.0 License - Copyright (c) 2015-2016 - The naive-cqrs Project
+ */
+
 package net.faustinelli.cqrs.naive.db;
 
 import net.faustinelli.cqrs.naive.model.Conference;
@@ -6,11 +14,12 @@ import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.junit.Test;
 
+import static net.faustinelli.cqrs.naive.db.HibernateConfig.getFactory;
 import static net.faustinelli.cqrs.naive.db.HibernateConfig.getSession;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by R597423 on 4/25/2016.
+ * Created by Marco Faustinelli (Muzietto) on 4/25/2016.
  */
 public class H2DbTest {
 
