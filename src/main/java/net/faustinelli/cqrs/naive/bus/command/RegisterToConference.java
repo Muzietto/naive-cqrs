@@ -15,10 +15,18 @@ import net.faustinelli.cqrs.naive.model.Conference;
  */
 public class RegisterToConference implements Command {
     private Conference conference;
+    private Integer participants;
 
     public RegisterToConference(Conference conference) {
         this.conference = conference;
     }
 
 
+    public Integer getParticipants() {
+        return participants;
+    }
+
+    public Conference getConference() {
+        return conference;
+    }
 }
