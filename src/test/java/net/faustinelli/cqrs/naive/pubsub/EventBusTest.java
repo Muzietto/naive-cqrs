@@ -15,6 +15,7 @@ import net.faustinelli.cqrs.naive.bus.command.CommandBus;
 import net.faustinelli.cqrs.naive.bus.command.RegisterToConference;
 import net.faustinelli.cqrs.naive.bus.command.handler.CommandHandler;
 import net.faustinelli.cqrs.naive.bus.command.handler.OrderCommandHandler;
+import net.faustinelli.cqrs.naive.model.Conference;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -27,9 +28,8 @@ public class EventBusTest {
     @Test
     public void testCommandBus() {
         CommandBus commandBus = new CommandBus();
-        Command register = new RegisterToConference();
-        CommandHandler orderCH = new OrderCommandHandler();
-        commandBus.register(orderCH);
+        Command register = new RegisterToConference(new Conference("test_conference"));
+        CommandHandler orderCH = new OrderCommandHandler(commandBus);
         commandBus.post(register);
     }
 
