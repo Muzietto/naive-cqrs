@@ -8,17 +8,19 @@
 
 package net.faustinelli.cqrs.naive.model;
 
-import net.faustinelli.cqrs.naive.db.DataAccess;
-import net.faustinelli.cqrs.naive.db.HibernateConfig;
-
-import java.util.function.Function;
+import org.hibernate.classic.Session;
 
 /**
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
  */
-public class Factory {
+public abstract class Factory {
 
-    public static Order ORDER(Conference conf, Integer seatsToBook) {
-        return new Order(conf, seatsToBook);
+    public Order ORDER(Conference conf, Integer seatsToBook) {
+        final Order order = new Order(conf, seatsToBook);
+        getSession().save(order);
+
+        return order;
     }
+
+    protected abstract Session getSession();
 }
