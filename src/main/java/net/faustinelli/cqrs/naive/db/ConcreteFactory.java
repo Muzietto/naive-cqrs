@@ -9,7 +9,9 @@
 package net.faustinelli.cqrs.naive.db;
 
 import net.faustinelli.cqrs.naive.model.Factory;
+import org.hibernate.Hibernate;
 import org.hibernate.classic.Session;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Created by Marco Faustinelli (Muzietto) on 27/04/2016.
@@ -17,6 +19,23 @@ import org.hibernate.classic.Session;
 public class ConcreteFactory extends Factory {
     @Override
     protected Session getSession() {
-        return HibernateConfig.getSession();
+        return HibernateConfig.getSessionFactory().openSession();
+    }
+
+    /**
+     * http://stackoverflow.com/questions/2216547/converting-hibernate-proxy-to-real-object
+     */
+    protected <T> T initializeAndUnproxy(T entity) {
+        if (entity == null) {
+            throw new
+                    NullPointerException("Entity passed for initialization is null");
+        }
+
+        Hibernate.initialize(entity);
+        if (entity instanceof HibernateProxy) {
+            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
+                    .getImplementation();
+        }
+        return entity;
     }
 }
