@@ -37,7 +37,7 @@ public class HibernateConfig implements DataAccess {
                 .buildSessionFactory();
     }
 
-    public static Session getSession() {
+    public static synchronized Session getSession() {
         if (THE_FACTORY == null) {
             INSTANCE = new HibernateConfig();
         }
