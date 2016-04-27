@@ -9,6 +9,7 @@
 package net.faustinelli.cqrs.naive.bus.command.handler;
 
 import com.google.gwt.thirdparty.guava.common.eventbus.Subscribe;
+import net.faustinelli.cqrs.naive.bus.Bus;
 import net.faustinelli.cqrs.naive.bus.command.CommandBus;
 import net.faustinelli.cqrs.naive.bus.command.RegisterToConference;
 import net.faustinelli.cqrs.naive.model.Factory;
@@ -18,17 +19,18 @@ import net.faustinelli.cqrs.naive.model.Order;
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
  */
 public class OrderCommandHandler implements CommandHandler {
+    private Bus commandBus;
+    private Factory factory;
 
-    private CommandBus commandBus;
-
-    public OrderCommandHandler(CommandBus commandBus) {
+    public OrderCommandHandler(Bus commandBus, Factory factory) {
         this.commandBus = commandBus;
         commandBus.register(this);
+        this.factory = factory;
     }
 
     @Subscribe
     public void handle(RegisterToConference command) {
-        Order order = Factory.ORDER(command.getConference(), command.getParticipants());
+        Order order = factory.ORDER(command.getConference(), command.getAttendees());
 
     }
 }
