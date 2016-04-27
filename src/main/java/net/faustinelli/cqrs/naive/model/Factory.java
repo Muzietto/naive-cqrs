@@ -30,6 +30,7 @@ public abstract class Factory {
     public Conference CONFERENCE(String title, Integer numSeats) {
         final Conference conf = new Conference(title, numSeats);
         save(conf);
+        save(new SeatAvailability(conf));
         return conf;
     }
 
@@ -39,6 +40,19 @@ public abstract class Factory {
         session.save(obj);
         tx.commit();
         session.close();
+    }
+
+    public SeatAvailability SEAT_AVAILABILITY(Conference conf) {
+        return (SeatAvailability) queryById(SeatAvailability.class, "from SeatAvailability where CONFERENCE_ID = :id ", conf.getId());
+    }
+
+    private Object queryById(Class clazz, String statement, Long id) {
+        Session session = getSession();
+        Transaction tx = session.beginTransaction();
+        return session
+                .createQuery(statement)
+                .setParameter("id", id)
+                .list().get(0);
     }
 
     public Conference CONFERENCE(Long confId) {
