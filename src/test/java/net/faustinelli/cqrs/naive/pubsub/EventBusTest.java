@@ -28,8 +28,8 @@ public class EventBusTest {
     @Test
     public void testCommandBus() {
         CommandBus commandBus = new CommandBus();
-        Command register = new RegisterToConference(new Conference("test_conference"));
-        CommandHandler orderCH = new OrderCommandHandler(commandBus);
+        Command register = new RegisterToConference(new Conference("test_conference"), 12);
+        CommandHandler orderCH = new OrderCommandHandler(commandBus, null);
         commandBus.post(register);
     }
 
