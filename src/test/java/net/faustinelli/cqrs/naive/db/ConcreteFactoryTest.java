@@ -11,6 +11,7 @@ package net.faustinelli.cqrs.naive.db;
 import net.faustinelli.cqrs.naive.model.Conference;
 import net.faustinelli.cqrs.naive.model.Factory;
 import net.faustinelli.cqrs.naive.model.Order;
+import net.faustinelli.cqrs.naive.model.SeatAvailability;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.junit.After;
@@ -40,14 +41,19 @@ public class ConcreteFactoryTest {
 
     @Test
     public void testCreateConference() {
-        Conference conf = this.factory.CONFERENCE("test_conf", 100);
+        Conference conf = this.factory.CONFERENCE("test_conf", 101);
         Long confId = conf.getId();
 
         tx = this.session.beginTransaction();
         Conference dbConf = (Conference) session.load(Conference.class, confId);
+        SeatAvailability avail = (SeatAvailability) this.session
+                .createQuery("from SeatAvailability where CONFERENCE_ID = :id ")
+                .setParameter("id", confId)
+                .list().get(0);
         tx.commit();
 
         assertEquals("test_conf", dbConf.getTitle());
+        assertEquals(101, avail.availableSeats());
     }
 
     @Test
