@@ -9,9 +9,10 @@
 package net.faustinelli.cqrs.naive.bus.command;
 
 import com.google.gwt.thirdparty.guava.common.eventbus.EventBus;
+import net.faustinelli.cqrs.naive.bus.Bus;
 
 /**
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
  */
-public class CommandBus extends EventBus {
+public class CommandBus extends EventBus implements Bus {
 }
