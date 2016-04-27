@@ -20,4 +20,9 @@ public class FakeFactory extends Factory {
     protected Session getSession() {
         return DataAccess.getSession();
     }
+
+    @Override
+    protected <T> T initializeAndUnproxy(T entity) {
+        return entity;
+    }
 }
