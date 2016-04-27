@@ -1,0 +1,111 @@
+
+http://localhost:9085/FitNesse.TestSuite.CustodyMarkets.DevelopmentSuiteWithLegacyDatastore.DevelopmentSuite.TBEMessages.DVP?test
+
+assume The Below Custody Trades Are Received
+
+DSAdaptor.assumeTheBelowCustodyTradesAreReceived
+
+method that gets executed: processTbeTradeMessage(String custodyMessage) -> convert message to AMPS message
+
+CustodyTradeMessageListener.custodyTradeMessageListener.processMessage(securitiesTransaction); -> real stuff
+
+	CustodyTradeMessageProcessor.protoMessageProcessor.process(securitiesTransaction);
+
+		AssetMovementRequest assetMovementRequest = custodyTradeToAssetMovementRequestConverter.apply(securitiesTransaction);
+
+		AssetMovementRequest updatedAssetMovementRequest = enrichInstrument(assetMovementRequest);
+
+		AssetMovementRequestInfo assetMovementRequestInfo = new AssetMovementRequestInfo(tradeId, tradeId, updatedAssetMovementRequest);
+
+		Collection<DSResult> results = settlementMissionService.process(assetMovementRequestInfo);
+
+			class that does the job:
+			public class CustodySettlementMissionService implements GenericSettlementMissionService<AssetMovementRequestInfo> 
+
+			enrichCancellationDetails(AssetMovementRequestInfo assetMovementRequestInfo)
+
+			public enum ChoreographyType {
+				NEW, -> new trade
+				AMEND, -> modification o existing trade
+				CANCEL, -> trade to be canceled
+				REVERSE_CANCEL; -> bring back
+
+			DSOutput output = assetMovementRequestProcessor.process(assetMovementRequestInfoList); --> important part!!!!
+			
+				--> study assetMovementRequestDuplicateHelper
+				
+				allSettlementMissionRecords.add(generateSettlements(assetMovementRequestInfo, recentMissionsByDealVersions));
+				
+					generateSettlements
+					-------------------
+					public List<SettlementMissionRecord> generateSettlements(AssetMovementRequestInfo assetMovementRequestInfo,
+																		 Collection<SettlementMissionRecord> latestSMRsOfDealId)
+					 
+					List<SettlementMissionRecord> settlementMissionRecords = generateSettlementMissionRecords(assetMovementRequest, tradeLeg,
+																												  latestSMRsOfDealId);
+																												  
+						generateSettlementMissionRecords
+						--------------------------------
+						protected List<SettlementMissionRecord> generateSettlementMissionRecords(AssetMovementRequest amr, TradeLeg tradeLeg,
+																						 Collection<SettlementMissionRecord> latestSMRsOfAMR)
+						
+						switch (choreographyType) 
+						
+							NEW -> private List<SettlementMissionRecord> createSettlementMissionRecord(AssetMovementRequest amr, TradeLeg tradeLeg)
+							
+							createSettlementMissionRecord
+							-----------------------------
+							SettlementMission settlementMission = settlementMissionMapper.createSettlementMission(tradeLeg, amr);
+							
+							private List<SettlementMissionRecord> buildSettlementMissionRecords(List<SettlementMission> settlementMissions)
+							SettlementMissionRecord goes to the db
+							
+			back here
+			List<SettlementMissionRecord> instructionPreprocessedRecords = getSettlementMissionRecordsFromIMPreProcessor(allSettlementMissionRecords);	
+			--> validates & return instructionGenerationPreprocessor.process(allSettlementMissionRecords); <-- PREprocessor
+			
+			List<SettlementMissionRecord> smrs = nettingService.applyNetting(instructionPreprocessedRecords);
+			savedRecords = settlementMissionRecordStore.saveRecords(smrs); --> saved
+			
+			List<SettlementMissionRecord> instructionPreprocessedCancelRecords =
+					getSettlementMissionRecordsFromIMPreProcessor(Arrays.asList(getEnrichedRecordsWithInstructionChoreography(duplicateCancelMissions)));
+			populateInstructionTriggerType(instructionPreprocessedCancelRecords);
+			savedRecords.addAll(instructionPreprocessedCancelRecords);
+			Map<String, List<SettlementMissionRecord>> savedSettlementMissionRecords =
+					createTradeKeyAndSettlementMissionRecordsMap(assetMovementRequestInfos, savedRecords);
+					
+			return new DSOutput(savedSettlementMissionRecords, results); --> THE FINAL PRODUCT
+							
+		List<List<SettlementMissionRecord>> settlementMissionRecords = output.getSettlementMissionRecords();
+		List<SettlementMissionRecord> settlementMissionRecordsWithInstruction =
+			instructionGenerationProcessor.executeWorkflow(settlementMissionRecords);		 <-- PREprocessor - instruction = instruction to the market
+					
+		SettlementMissionRecordEnricher.enrichSettlementMissionRecordsWithInstructionId(Utils.flattenToList(settlementMissionRecords),
+																								settlementMissionRecordsWithInstruction);
+																								
+		dsDownstreamSender.sendToDownstreamSystems(assetMovementRequestInfoList, Utils.flattenToList(settlementMissionRecords));
+		
+		--> dsDownStreamSender at the end sends to AMPS
+		
+			sendToDownstreamSystems
+			-----------------------
+		    sendMessagesToAmeGUI(settlementMissionRecords);
+			sendMessagesToFalcon(settlementMissionRecords, DS_SOURCE_SYSTEM); // info warehouse
+			sendToLpa(settlementMissionRecords); // LegacyPredictAdapter
+			sendMessagesToContractualSettlement(assetMovementRequestInfos, settlementMissionRecords);
+			
+				sendMessagesToContractualSettlement <-- autosettlement only (?)
+				-----------------------------------
+				if (ENABLE_TREP_AUTO_SETTLEMENT.isActive()) sendForRealTimeAutoSettlement(messagesToBePublished);
+				else {
+					csMessageRouter.routeMessages(getTrepMessagesToBeSentToCS(assetMovementRequestInfos));
+					sendForRealTimeAutoSettlement(getNapoliMessagesForRealTimeAutoSettlement(savedSettlementMissionRecords));
+				}
+			
+			sendToAmps(settlementMissionRecords, MESSAGE_TYPE_INITIATION); // AMPS...
+
+		
+		return output.getResults();
+		
+				
+				
