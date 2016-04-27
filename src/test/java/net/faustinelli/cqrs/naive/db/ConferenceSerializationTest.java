@@ -11,8 +11,10 @@ package net.faustinelli.cqrs.naive.db;
 import net.faustinelli.cqrs.naive.model.Conference;
 import net.faustinelli.cqrs.naive.model.Message;
 import net.faustinelli.cqrs.naive.model.SeatAvailability;
+import org.hibernate.Query;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,6 +34,11 @@ public class ConferenceSerializationTest {
         this.tx = session.beginTransaction();
     }
 
+    @After
+    public void tearDown() {
+        this.session.close();
+    }
+
     @Test
     public void conferenceSeatAvailabilityPersistenceTest() {
 
@@ -41,14 +48,19 @@ public class ConferenceSerializationTest {
         session.save(confy);
         session.save(avail);
         tx.commit();
+        Long confId = confy.getId();
 
         session = getSession();
         tx = session.beginTransaction();
 
-        confy = (Conference) session.load(Conference.class, new Long(1));
+        confy = (Conference) session.load(Conference.class, confId);
         assertEquals("test_confy", confy.getTitle());
 
-        avail = (SeatAvailability) session.load(SeatAvailability.class, new Long(1));
+        avail = (SeatAvailability) session
+                .createQuery("from SeatAvailability where CONFERENCE_ID = :id ")
+                .setParameter("id", confId)
+                .list().get(0);
+
         assertEquals(new Integer(123), avail.availableSeats());
         tx.commit();
     }
