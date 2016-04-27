@@ -8,7 +8,10 @@
 
 package net.faustinelli.cqrs.naive.model;
 
+import org.hibernate.Hibernate;
+import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
@@ -17,10 +20,39 @@ public abstract class Factory {
 
     public Order ORDER(Conference conf, Integer seatsToBook) {
         final Order order = new Order(conf, seatsToBook);
-        getSession().save(order);
-
+        save(order);
         return order;
     }
 
     protected abstract Session getSession();
+    protected abstract <T> T initializeAndUnproxy(T entity);
+
+    public Conference CONFERENCE(String title, Integer numSeats) {
+        final Conference conf = new Conference(title, numSeats);
+        save(conf);
+        return conf;
+    }
+
+    private void save(Object obj) {
+        Session session = getSession();
+        Transaction tx = session.beginTransaction();
+        session.save(obj);
+        tx.commit();
+        session.close();
+    }
+
+    public Conference CONFERENCE(Long confId) {
+        Conference entity = (Conference) load(Conference.class, confId);
+        return entity;
+    }
+
+    private Object load(Class clazz, Long id) {
+        Session session = getSession();
+        Transaction tx = session.beginTransaction();
+        Object result = session.load(clazz, id);
+        initializeAndUnproxy(result);
+        tx.commit();
+        session.close();
+        return result;
+    }
 }
