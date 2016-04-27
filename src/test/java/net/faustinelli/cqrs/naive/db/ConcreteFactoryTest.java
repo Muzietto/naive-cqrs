@@ -41,7 +41,7 @@ public class ConcreteFactoryTest {
 
     @Test
     public void testCreateConference() {
-        Conference conf = this.factory.CONFERENCE("test_conf", 101);
+        Conference conf = this.factory.CONFERENCE("testCreateConference", 101);
         Long confId = conf.getId();
 
         tx = this.session.beginTransaction();
@@ -52,17 +52,17 @@ public class ConcreteFactoryTest {
                 .list().get(0);
         tx.commit();
 
-        assertEquals("test_conf", dbConf.getTitle());
+        assertEquals("testCreateConference", dbConf.getTitle());
         assertEquals(101, avail.availableSeats());
     }
 
     @Test
     public void testReadUpdateConference() {
-        Conference conf = this.factory.CONFERENCE("test_conf2", 100);
+        Conference conf = this.factory.CONFERENCE("testReadUpdateConference", 100);
         Long confId = conf.getId();
 
         Conference dbConf = this.factory.CONFERENCE(confId);
-        dbConf.setTitle("test_conf3");
+        dbConf.setTitle("testReadUpdateConference_UPDATED");
 
         tx = this.session.beginTransaction();
         this.session.update(dbConf);
@@ -70,7 +70,15 @@ public class ConcreteFactoryTest {
 
         tx = this.session.beginTransaction();
         dbConf = this.factory.CONFERENCE(confId);
-        assertEquals("test_conf3", dbConf.getTitle());
+        assertEquals("testReadUpdateConference_UPDATED", dbConf.getTitle());
         tx.commit();
+    }
+
+    @Test
+    public void testRetrieveSeatAvailability() {
+        Integer numSeats = 12345;
+        Conference conf = this.factory.CONFERENCE("testRetrieveSeatAvailability", numSeats);
+        SeatAvailability avail = this.factory.SEAT_AVAILABILITY(conf);
+        assertEquals(new Integer(numSeats), avail.availableSeats());
     }
 }
