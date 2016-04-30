@@ -41,10 +41,13 @@ public class HibernateConfig implements DataAccess {
         if (THE_FACTORY == null) {
             INSTANCE = new HibernateConfig();
         }
-        return THE_FACTORY.getCurrentSession();
+        return THE_FACTORY.openSession();
     }
 
-    public static void setFactory(SessionFactory aFactory) {
-        THE_FACTORY = aFactory;
+    public static synchronized SessionFactory getSessionFactory() {
+        if (THE_FACTORY == null) {
+            INSTANCE = new HibernateConfig();
+        }
+        return THE_FACTORY;
     }
 }

@@ -14,6 +14,7 @@ import org.hibernate.jdbc.Work;
 import org.hibernate.stat.SessionStatistics;
 import org.hibernate.type.Type;
 
+import javax.transaction.Synchronization;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.util.Collection;
@@ -24,8 +25,39 @@ import java.util.List;
  * Created by Marco Faustinelli (Muzietto) on 4/26/2016.
  */
 public interface DataAccess {
+
     static Session getSession() {
         return new Session() {
+
+            @Override
+            public Transaction beginTransaction() throws HibernateException {
+                return new Transaction() {
+                    @Override
+                    public void begin() throws HibernateException { }
+
+                    @Override
+                    public void commit() throws HibernateException { }
+
+                    @Override
+                    public void rollback() throws HibernateException { }
+
+                    @Override
+                    public boolean wasRolledBack() throws HibernateException { return false; }
+
+                    @Override
+                    public boolean wasCommitted() throws HibernateException { return false; }
+
+                    @Override
+                    public boolean isActive() throws HibernateException { return false; }
+
+                    @Override
+                    public void registerSynchronization(Synchronization synchronization) throws HibernateException { }
+
+                    @Override
+                    public void setTimeout(int i) { }
+                };
+            }
+
             @Override
             public Object saveOrUpdateCopy(Object o) throws HibernateException {
                 return null;
@@ -368,11 +400,6 @@ public interface DataAccess {
 
             @Override
             public LockMode getCurrentLockMode(Object o) throws HibernateException {
-                return null;
-            }
-
-            @Override
-            public Transaction beginTransaction() throws HibernateException {
                 return null;
             }
 

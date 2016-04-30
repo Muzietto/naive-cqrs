@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class SeatAvailabilityUnitTest {
     @Test
     public void testBookSeats() throws Exception {
-        SeatAvailability avail = new SeatAvailability(new Conference("test_confy"));
+        SeatAvailability avail = new SeatAvailability(new Conference("test_confx"));
         assertEquals(new Integer(100), avail.availableSeats());
 
         avail.bookSeats(15);
